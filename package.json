@@ -1,0 +1,37 @@
+{
+  "name": "mini-medium",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:emu": "concurrently -k -n emu,web -c cyan,magenta \"npm run emulators\" \"next dev --turbopack\"",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-mini-medium",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "deploy:rules": "firebase deploy --only firestore",
+    "seed": "node scripts/seed-demo.mjs"
+  },
+  "dependencies": {
+    "@uiw/react-md-editor": "^4.1.2",
+    "firebase": "^12.19.0",
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "concurrently": "^10.0.5",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "firebase-tools": "^14.19.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,115 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(userPath(request.auth.uid))
+        && get(userPath(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isValidUser(uid) {
+      let data = request.resource.data;
+      return data.uid == uid
+        && data.role == 'writer'
+        && data.displayName is string
+        && data.displayName.size() > 0
+        && data.displayName.size() <= 80
+        && data.bio is string
+        && data.bio.size() <= 280
+        && data.email is string
+        && data.keys().hasAll(['uid', 'displayName', 'email', 'bio', 'role', 'createdAt']);
+    }
+
+    function isValidPost() {
+      let data = request.resource.data;
+      return data.authorId is string
+        && data.authorName is string
+        && data.title is string
+        && data.slug is string
+        && data.content is string
+        && data.tags is list
+        && data.status in ['draft', 'published']
+        && data.viewCount is number
+        && data.keys().hasAll([
+          'authorId', 'authorName', 'title', 'slug', 'content',
+          'tags', 'status', 'createdAt', 'publishedAt', 'viewCount'
+        ]);
+    }
+
+    function isValidPayout() {
+      let data = request.resource.data;
+      return data.authorId is string
+        && data.month is string
+        && data.totalAdRevenue is number
+        && data.writerShare is number
+        && data.status in ['pending', 'paid'];
+    }
+
+    function isViewCountIncrement() {
+      return resource.data.status == 'published'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount'])
+        && request.resource.data.viewCount == resource.data.viewCount + 1;
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId) && isValidUser(userId);
+      allow update: if (isOwner(userId)
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.email == resource.data.email)
+        || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /posts/{postId} {
+      allow read: if resource.data.status == 'published'
+        || isOwner(resource.data.authorId)
+        || isAdmin();
+
+      allow create: if signedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.viewCount == 0
+        && isValidPost();
+
+      allow update: if isViewCountIncrement()
+        || ((isOwner(resource.data.authorId) || isAdmin())
+            && isValidPost()
+            && request.resource.data.authorId == resource.data.authorId
+            && request.resource.data.viewCount == resource.data.viewCount);
+
+      allow delete: if isOwner(resource.data.authorId) || isAdmin();
+    }
+
+    match /payouts/{payoutId} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.authorId == request.auth.uid);
+      allow create, delete: if isAdmin() && isValidPayout();
+      allow update: if isAdmin()
+        && isValidPayout()
+        && request.resource.data.authorId == resource.data.authorId
+        && request.resource.data.month == resource.data.month;
+    }
+
+    match /config/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin()
+        && request.resource.data.writerPercent is number
+        && request.resource.data.writerPercent >= 0
+        && request.resource.data.writerPercent <= 100;
+    }
+  }
+}

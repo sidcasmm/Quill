@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: #f7f4ed;
+  --color-paper-2: #fffcf6;
+  --color-ink: #1a1916;
+  --color-muted: #6f6b63;
+  --color-line: #e4ddd0;
+  --color-forest: #1a7f4b;
+  --color-forest-hover: #14663c;
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-display);
+}
+
+html,
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.md-body {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.md-body > *:first-child {
+  margin-top: 0;
+}
+
+.md-body p,
+.md-body ul,
+.md-body ol,
+.md-body blockquote,
+.md-body pre {
+  margin: 1.25em 0;
+}
+
+.md-body h2,
+.md-body h3,
+.md-body h4 {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  letter-spacing: -0.02em;
+  margin: 1.6em 0 0.6em;
+}
+
+.md-body h2 {
+  font-size: 1.75rem;
+}
+
+.md-body h3 {
+  font-size: 1.35rem;
+}
+
+.md-body a {
+  text-decoration: underline;
+}
+
+.md-body ul,
+.md-body ol {
+  padding-left: 1.4em;
+}
+
+.md-body ul {
+  list-style: disc;
+}
+
+.md-body ol {
+  list-style: decimal;
+}
+
+.md-body blockquote {
+  border-left: 3px solid var(--color-line);
+  padding-left: 1em;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.md-body pre,
+.md-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.92em;
+}
+
+.md-body pre {
+  background: #1a1916;
+  color: #f7f4ed;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+
+.md-body img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+.ad-slot {
+  margin: 2.5rem 0;
+  min-height: 1px;
+}
+
+.editor-shell .w-md-editor {
+  --md-editor-background-color: #fffcf6;
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.editor-shell .w-md-editor-text-input,
+.editor-shell .w-md-editor-text {
+  font-size: 1.05rem !important;
+  line-height: 1.7 !important;
+}
