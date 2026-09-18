@@ -1,12 +1,27 @@
+function resolveSiteUrl() {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+  if (fromEnv) {
+    try {
+      return new URL(fromEnv).origin;
+    } catch {
+      // Empty or invalid values (common on first Vercel deploy) fall through.
+    }
+  }
+
+  const vercelHost = process.env.VERCEL_URL?.trim().replace(/^https?:\/\//, "");
+  if (vercelHost) {
+    return `https://${vercelHost}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 export const siteConfig = {
-  name: process.env.NEXT_PUBLIC_SITE_NAME ?? "Quill",
+  name: process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "Quill",
   description:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION ??
+    process.env.NEXT_PUBLIC_SITE_DESCRIPTION?.trim() ||
     "A place for writers to publish stories, and for readers to find them.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(
-    /\/$/,
-    "",
-  ),
+  url: resolveSiteUrl(),
   payoutCurrency: process.env.NEXT_PUBLIC_PAYOUT_CURRENCY ?? "INR",
 };
 
